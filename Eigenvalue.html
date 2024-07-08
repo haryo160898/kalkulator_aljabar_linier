@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalkulator Eigenvalue</title>
+  <style>
+body {
+      background-color: #ffffff00;
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 600px;
+      margin: 20px auto;
+      background: linear-gradient(to bottom, #252338, #4252b9, #6fb4cd);
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      text-align: center;
+      color: white;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    label {
+      margin-top: 20px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    select {
+      margin-bottom: 20px;
+    }
+
+    .input-matriks {
+      display: grid;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .size-2 {
+      grid-template-columns: repeat(2, 50px);
+    }
+
+    .size-3 {
+      grid-template-columns: repeat(3, 50px);
+    }
+
+    .matrix-input {
+      width: 50px;
+      height: 30px;
+      text-align: center;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .button {
+      background-color: #0000ff78;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .result {
+      margin-top: 20px;
+    }
+
+    table {
+      margin: 20px auto;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border: 1px solid white;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Kalkulator Eigenvalue</h1>
+    <label for="ukuran-matriks">Ukuran Matriks:</label>
+    <select id="ukuran-matriks" name="ukuran-matriks">
+      <option value="2">2x2</option>
+      <option value="3">3x3</option>
+    </select>
+    <div class="input-matriks" id="input-matriks"></div>
+    <div class="button-container">
+      <button class="button" id="calculate-btn">Hitung</button> 
+      <button class="button" id="clear-btn">Hapus</button>
+    </div>
+    <button class="button" onclick="goToHomePage()">Kembali</button>
+    <div class="result" id="hasil-eigenvalue"></div>
+  </div>
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+  const ukuranMatriks = document.getElementById('ukuran-matriks');
+  const inputMatriks = document.getElementById('input-matriks');
+  const calculateBtn = document.getElementById('calculate-btn');
+  const hasilEigenvalue = document.getElementById('hasil-eigenvalue');
+  const clearBtn = document.getElementById('clear-btn');
+
+  function generateInputBoxes(size) {
+    inputMatriks.innerHTML = '';
+    inputMatriks.classList.remove('size-2', 'size-3');
+    inputMatriks.classList.add(`size-${size}`);
+
+    for (let i = 0; i < size; i++) {
+      const row = document.createElement('div');
+      row.classList.add('row');
+      for (let j = 0; j < size; j++) {
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.className = 'matrix-input';
+        input.id = `a${i}${j}`;
+        row.appendChild(input);
+      }
+      inputMatriks.appendChild(row);
+    }
+  }
+
+  function getMatrixValues(size) {
+    const values = [];
+    const inputs = inputMatriks.querySelectorAll('input');
+    for (let i = 0; i < size * size; i++) {
+      const value = parseFloat(inputs[i].value);
+      if (!isNaN(value)) {
+        values.push(value);
+      } else {
+        return null;
+      }
+    }
+    return values;
+  }
+
+  function calculateEigenvalue(size) {
+  const matrixValues = getMatrixValues(size);
+  if (matrixValues === null) {
+    hasilEigenvalue.textContent = 'Masukkan nilai yang valid untuk semua elemen matriks.';
+    return;
+  }
+
+  let eigenvalues;
+  switch (size) {
+    case 2:
+      eigenvalues = eigenvalues2x2(matrixValues);
+      break;
+    case 3:
+      eigenvalues = eigenvalues3x3(matrixValues);
+      break;
+    default:
+      hasilEigenvalue.textContent = 'Ukuran matriks tidak valid.';
+      return;
+  }
+
+  displayEigenvalues(eigenvalues);
+}
+
+function simplifyFraction(decimal) {
+  const tolerance = 1.0E-6;
+  let isNegative = false;
+  if (decimal < 0) {
+    isNegative = true;
+    decimal = -decimal;
+  }
+
+  let h1 = 1;
+  let h2 = 0;
+  let k1 = 0;
+  let k2 = 1;
+  let b = decimal;
+  do {
+    let a = Math.floor(b);
+    let aux = h1;
+    h1 = a * h1 + h2;
+    h2 = aux;
+    aux = k1;
+    k1 = a * k1 + k2;
+    k2 = aux;
+    b = 1 / (b - a);
+  } while (Math.abs(decimal - h1 / k1) > decimal * tolerance);
+
+  if (isNegative) {
+    h1 = -h1;
+  }
+
+  return {
+    numerator: h1,
+    denominator: k1
+  };
+}
+
+function eigenvalues2x2(matrix) {
+  const a = matrix[0];
+  const b = matrix[1];
+  const c = matrix[2];
+  const d = matrix[3];
+
+  const trace = a + d;
+  const determinant = a * d - b * c;
+  const discriminant = trace ** 2 - 4 * determinant;
+
+  if (discriminant >= 0) {
+    const lambda1 = (trace + Math.sqrt(discriminant)) / 2;
+    const lambda2 = (trace - Math.sqrt(discriminant)) / 2;
+    return [lambda1, lambda2];
+  } else {
+    const realPart = trace / 2;
+    const imagPart = Math.sqrt(Math.abs(discriminant)) / 2;
+    const lambda1 = `${realPart.toFixed(2)} + ${imagPart.toFixed(2)}i`;
+    const lambda2 = `${realPart.toFixed(2)} - ${imagPart.toFixed(2)}i`;
+    return [lambda1, lambda2];
+  }
+}
+
+function eigenvalues3x3(matrix) {
+  const a = matrix[0];
+  const b = matrix[1];
+  const c = matrix[2];
+  const d = matrix[3];
+  const e = matrix[4];
+  const f = matrix[5];
+  const g = matrix[6];
+  const h = matrix[7];
+  const i = matrix[8];
+
+  const trace = a + e + i;
+  const determinant = a * (e * i - f * h) - b * (d * i - f * g) + c * (d * h - e * g);
+  const discriminant = trace ** 2 - 3 * determinant;
+
+  if (discriminant > 0) {
+    const sqrtDiscriminant = Math.sqrt(discriminant);
+    const lambda1 = (trace + sqrtDiscriminant) / 3;
+    const lambda2 = (trace - (sqrtDiscriminant / 2) + Math.sqrt(3) / 2) / 3;
+    const lambda3 = (trace - (sqrtDiscriminant / 2) - Math.sqrt(3) / 2) / 3;
+    return [lambda1, lambda2, lambda3];
+  } else if (discriminant === 0) {
+    const lambda1 = trace / 3;
+    const lambda2 = lambda1;
+    const lambda3 = lambda1;
+    return [lambda1, lambda2, lambda3];
+  } else {
+    const realPart = trace / 3;
+    const imagPart = Math.sqrt(Math.abs(discriminant)) / 3;
+    const omega = Math.acos(realPart / Math.sqrt(realPart ** 2 + imagPart ** 2));
+    const lambda1 = 2 * Math.sqrt(realPart) * Math.cos(omega / 3);
+    const lambda2 = 2 * Math.sqrt(realPart) * Math.cos((omega + 2 * Math.PI) / 3);
+    const lambda3 = 2 * Math.sqrt(realPart) * Math.cos((omega + 4 * Math.PI) / 3);
+    return [lambda1.toFixed(2), lambda2.toFixed(2), lambda3.toFixed(2)];
+  }
+}
+
+function displayEigenvalues(eigenvalues) {
+  hasilEigenvalue.textContent = 'Eigenvalues:';
+  const ul = document.createElement('ul');
+  eigenvalues.forEach(eigenvalue => {
+    let value;
+    if (typeof eigenvalue === 'number') {
+      if (Number.isInteger(eigenvalue)) {
+        value = eigenvalue;
+      } else {
+        const fraction = simplifyFraction(eigenvalue);
+        value = `${fraction.numerator}/${fraction.denominator}`;
+      }
+    } else {
+      value = eigenvalue;
+    }
+    const li = document.createElement('li');
+    li.textContent = value;
+    ul.appendChild(li);
+  });
+  hasilEigenvalue.appendChild(ul);
+}
+
+clearBtn.addEventListener('click', function () {
+  hasilEigenvalue.textContent = '';
+  const inputs = inputMatriks.querySelectorAll('input');
+  inputs.forEach(input => {
+    input.value = '';
+  });
+});
+
+  ukuranMatriks.addEventListener('change', function () {
+    const size = parseInt(this.value);
+    generateInputBoxes(size);
+    hasilInverse.textContent = '';
+  });
+
+  calculateBtn.addEventListener('click', function () {
+    const size = parseInt(ukuranMatriks.value);
+    calculateEigenvalue(size);
+  });
+
+  generateInputBoxes(parseInt(ukuranMatriks.value));
+});
+
+function goToHomePage() {
+    window.location.href = "homepage.html";
+  }
+  </script>
+</body>
+</html>

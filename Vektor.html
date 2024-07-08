@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Vector</title>
+    <style>
+        body {
+            background-color: #ffffff00;
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            width: 450px;
+            max-width: 600px;
+            margin: 20px auto;
+            background: linear-gradient(to bottom, #252338, #4252b9, #6fb4cd);
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        label {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        select {
+            margin-bottom: 20px;
+        }
+
+        .input-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .vector-input {
+            display: flex;
+            align-items: center;
+        }
+
+        .coordinate-input {
+            width: 50px;
+            height: 30px;
+            border: 1px solid black;
+            margin: 5px 0;
+            text-align: center;
+        }
+
+        .operation-select {
+            margin-bottom: 20px;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .button {
+            background-color: #0000ff78;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .result-container, .steps-container {
+            margin-top: 20px;
+        }
+
+        .result-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .result-container h3, .steps-container h3 {
+            margin-bottom: 10px;
+        }
+
+        .result-container input, .steps-container div {
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+            margin: 0 auto;
+        }
+
+        .result p, .steps-container p {
+            margin: 5px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Kalkulator Vector</h1>
+        <div class="input-container">
+            <div class="vector-input" style="margin-right: 5px;">
+                <label for="vectorA" style="display: flex; flex-direction: column;">
+                    Vector A
+                    <input type="text" id="vectorA_x" class="coordinate-input" placeholder="x">
+                    <input type="text" id="vectorA_y" class="coordinate-input" placeholder="y">
+                    <input type="text" id="vectorA_z" class="coordinate-input" placeholder="z">
+                </label>
+            </div>
+            <div class="vector-input" style="margin-left: 5px;">
+                <label for="vectorB" style="display: flex; flex-direction: column;">
+                    Vector B
+                    <input type="text" id="vectorB_x" class="coordinate-input" placeholder="x">
+                    <input type="text" id="vectorB_y" class="coordinate-input" placeholder="y">
+                    <input type="text" id="vectorB_z" class="coordinate-input" placeholder="z">
+                </label>
+            </div>
+        </div>        
+        <div class="operation-select">
+            <label for="operation">Operasi: </label>
+            <select id="operation">
+                <option value="add">Penjumlahan</option>
+                <option value="subtract">Pengurangan</option>
+                <option value="dot">Perkalian Titik</option>
+                <option value="cross">Perkalian Silang</option>
+            </select>
+            <div class="button-container">
+                <button id="calculate" class="button">Hitung</button>
+                <button class="button" onclick="clearFields()">Hapus</button>
+            </div>
+            <button class="button" onclick="goToHomePage()">Kembali</button>
+        </div>
+        <div class="result-container">
+            <h3>Hasil</h3>
+            <input type="text" id="result" readonly>
+        </div>
+        <div class="steps-container">
+            <h3>Proses Pehitungan</h3>
+            <div id="calculation-steps"></div>
+        </div>
+    </div>
+    
+    <script>
+        function calculate(operation) {
+            const vectorAX = parseFloat(document.getElementById('vectorA_x').value);
+            const vectorAY = parseFloat(document.getElementById('vectorA_y').value);
+            const vectorAZ = parseFloat(document.getElementById('vectorA_z').value);
+            const vectorBX = parseFloat(document.getElementById('vectorB_x').value);
+            const vectorBY = parseFloat(document.getElementById('vectorB_y').value);
+            const vectorBZ = parseFloat(document.getElementById('vectorB_z').value);
+
+            let result;
+            let calculationSteps = "";
+
+            switch (operation) {
+                case 'add':
+                    result = {
+                        x: vectorAX + vectorBX,
+                        y: vectorAY + vectorBY,
+                        z: vectorAZ + vectorBZ
+                    };
+                    calculationSteps += `Step 1. Menambahkan komponen x: ${vectorAX} + ${vectorBX} = ${result.x} \n`;
+                    calculationSteps += `Step 2. Menambahkan komponen y: ${vectorAY} + ${vectorBY} = ${result.y} \n`;
+                    calculationSteps += `Step 3. Menambahkan komponen z: ${vectorAZ} + ${vectorBZ} = ${result.z} \n`;
+                    break;
+                case 'subtract':
+                    result = {
+                        x: vectorAX - vectorBX,
+                        y: vectorAY - vectorBY,
+                        z: vectorAZ - vectorBZ
+                    };
+                    calculationSteps += `Step 1. Mengurangi komponen x: ${vectorAX} - ${vectorBX} = ${result.x} \n`;
+                    calculationSteps += `Step 2. Mengurangi komponen y: ${vectorAY} - ${vectorBY} = ${result.y} \n`;
+                    calculationSteps += `Step 3. Mengurangi komponen z: ${vectorAZ} - ${vectorBZ} = ${result.z} \n`;
+                    break;
+                case 'dot':
+                    result = (vectorAX * vectorBX) + (vectorAY * vectorBY) + (vectorAZ * vectorBZ);
+                    calculationSteps += `Step 1. Mengalikan komponen x: ${vectorAX} * ${vectorBX} = ${vectorAX * vectorBX} \n`;
+                    calculationSteps += `Step 2. Mengalikan komponen y: ${vectorAY} * ${vectorBY} = ${vectorAY * vectorBY} \n`;
+                    calculationSteps += `Step 3. Mengalikan komponen z: ${vectorAZ} * ${vectorBZ} = ${vectorAZ * vectorBZ} \n`;
+                    calculationSteps += `Step 4. Jumhlahkan Hasilnya: ${vectorAX * vectorBX} + ${vectorAY * vectorBY} + ${vectorAZ * vectorBZ} = ${result} \n`;
+            break;
+                case 'cross':
+                    result = {
+                        x: vectorAY * vectorBZ - vectorAZ * vectorBY,
+                        y: vectorAZ * vectorBX - vectorAX * vectorBZ,
+                        z: vectorAX * vectorBY - vectorAY * vectorBX
+                    };
+                    calculationSteps += `Step 1. Hitung komponen x: (${vectorAY} * ${vectorBZ}) - (${vectorAZ} * ${vectorBY}) = ${result.x} \n`;
+                    calculationSteps += `Step 2. Hitung komponen y: (${vectorAZ} * ${vectorBX}) - (${vectorAX} * ${vectorBZ}) = ${result.y} \n`;
+                    calculationSteps += `Step 3. Hitung komponen z: (${vectorAX} * ${vectorBY}) - (${vectorAY} * ${vectorBX}) = ${result.z} \n`;
+                    break;
+                default:
+                    alert("Invalid operation selected!");
+                    return;
+            }
+
+            if (operation === 'dot') {
+                document.getElementById('result').value = result;
+            } else {
+                document.getElementById('result').value = `(${result.x}, ${result.y}, ${result.z})`;
+            }
+
+            document.getElementById('calculation-steps').innerText = calculationSteps;
+        }
+
+        document.getElementById('calculate').addEventListener('click', function() {
+            const operation = document.getElementById('operation').value;
+            calculate(operation);
+        });
+        
+        function clearFields() {
+            document.getElementById('vectorA_x').value = '';
+            document.getElementById('vectorA_y').value = '';
+            document.getElementById('vectorA_z').value = '';
+            document.getElementById('vectorB_x').value = '';
+            document.getElementById('vectorB_y').value = '';
+            document.getElementById('vectorB_z').value = '';
+            document.getElementById('result').value = '';
+            document.getElementById('calculation-steps').innerText = '';
+        }
+
+        function goToHomePage() {
+  window.location.href = "homepage.html";
+}
+    </script>
+</body>
+</html>

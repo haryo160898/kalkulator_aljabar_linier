@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalkulator Transpose Matriks</title>
+  <style>
+    body {
+      background-color: #ffffff00;
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 600px;
+      margin: 20px auto;
+      background: linear-gradient(to bottom, #252338, #4252b9, #6fb4cd);
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      text-align: center;
+      color: white;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    label {
+      margin-top: 20px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    select, input {
+      margin-bottom: 20px;
+    }
+
+    .input-matriks {
+      display: grid;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .matrix-input {
+      width: 50px;
+      height: 30px;
+      text-align: center;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .button {
+      background-color: #0000ff78;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .result {
+      margin-top: 20px;
+    }
+
+    table {
+      margin: 20px auto;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border: 1px solid white;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Kalkulator Transpose Matriks</h1>
+        <form id="matrix-form">
+            <label for="rows">Baris:</label>
+            <input type="number" id="rows" name="rows" min="1" required>
+            <label for="columns">Kolom:</label>
+            <input type="number" id="columns" name="columns" min="1" required><br>
+            <button type="button" id="create-matrix">Create Matrix</button>
+        <div class="input-matriks" id="input-matriks"></div>
+        <div class="button-container">
+          <button class="button" id="calculate-btn">Hitung Transpose</button> 
+          <button class="button" id="clear-btn">Hapus</button>
+        </div>
+        <button class="button" onclick="goToHomePage()">Kembali</button>
+        <div class="result" id="hasil-transpose"></div>
+      </div>
+      <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const inputMatriks = document.getElementById('input-matriks');
+        const calculateBtn = document.getElementById('calculate-btn');
+        const hasilTranspose = document.getElementById('hasil-transpose');
+        const clearBtn = document.getElementById('clear-btn');
+        const rowsInput = document.getElementById('rows');
+        const columnsInput = document.getElementById('columns');
+    
+        function generateInputBoxes(rows, cols) {
+          inputMatriks.innerHTML = '';
+          inputMatriks.style.gridTemplateColumns = `repeat(${cols}, 50px)`;
+    
+          for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < cols; j++) {
+              const input = document.createElement('input');
+              input.type = 'number';
+              input.className = 'matrix-input';
+              input.id = `a${i}${j}`;
+              inputMatriks.appendChild(input);
+            }
+          }
+        }
+    
+        function getMatrixValues(rows, cols) {
+          const values = [];
+          const inputs = inputMatriks.querySelectorAll('input');
+          for (let i = 0; i < rows * cols; i++) {
+            const value = parseFloat(inputs[i].value);
+            if (!isNaN(value)) {
+              values.push(value);
+            } else {
+              return null;
+            }
+          }
+          return values;
+        }
+    
+        function calculateTranspose(rows, cols) {
+  const matrixValues = getMatrixValues(rows, cols);
+  if (matrixValues === null) {
+    hasilTranspose.textContent = 'Masukkan nilai yang valid untuk semua elemen matriks.';
+    return;
+  }
+  const resultMatrix = [];
+
+  for (let i = 0; i < cols; i++) {
+    const newRow = [];
+    for (let j = 0; j < rows; j++) {
+      newRow.push(matrixValues[j * cols + i]);
+    }
+    resultMatrix.push(newRow);
+  }
+
+  displayFinalMatrix(resultMatrix, cols, rows);
+}
+
+function displayFinalMatrix(matrix, rows, cols) {
+  const finalContainer = document.createElement('div');
+  finalContainer.innerHTML = '<strong>Hasil Transpose:</strong>';
+  const table = document.createElement('table');
+  const tbody = document.createElement('tbody');
+  for (let i = 0; i < rows; i++) {
+    const row = document.createElement('tr');
+    for (let j = 0; j < cols; j++) {
+      const cell = document.createElement('td');
+      cell.textContent = Math.round(matrix[i][j]);
+      row.appendChild(cell);
+    }
+    tbody.appendChild(row);
+  }
+  table.appendChild(tbody);
+  finalContainer.appendChild(table);
+  hasilTranspose.appendChild(finalContainer);
+}
+    
+        clearBtn.addEventListener('click', function () {
+          hasilTranspose.textContent = '';
+          const inputs = inputMatriks.querySelectorAll('input');
+          inputs.forEach(input => {
+            input.value = '';
+          });
+        });
+    
+        rowsInput.addEventListener('change', function () {
+          const rows = parseInt(this.value);
+          const cols = parseInt(columnsInput.value);
+          generateInputBoxes(rows, cols);
+          hasilTranspose.textContent = '';
+        });
+    
+        columnsInput.addEventListener('change', function () {
+          const cols = parseInt(this.value);
+          const rows = parseInt(rowsInput.value);
+          generateInputBoxes(rows, cols);
+          hasilTranspose.textContent = '';
+        });
+    
+        calculateBtn.addEventListener('click', function () {
+          const rows = parseInt(rowsInput.value);
+          const cols = parseInt(columnsInput.value);
+          calculateTranspose(rows, cols);
+        });
+    
+        generateInputBoxes(parseInt(rowsInput.value), parseInt(columnsInput.value));
+      });
+    
+      function goToHomePage() {
+        window.location.href = "homepage.html";
+      }
+      </script>
+    </body>
+    </html>

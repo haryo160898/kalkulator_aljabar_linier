@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Kalkulator Sistem Persamaan Linier</title>
+  <style>
+    body {
+        background-color: #ffffff00;
+        font-family: sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+
+    .container {
+        width: 90%;
+        max-width: 600px;
+        margin: 20px auto;
+        background: linear-gradient(to bottom, #252338, #4252b9, #6fb4cd);
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        text-align: center;
+        color: white;
+    }
+
+    h1 {
+        margin-bottom: 20px;
+    }
+
+    label {
+        margin-top: 20px;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    select {
+        margin-bottom: 20px;
+    }
+
+    .equation {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+
+    .input-box {
+        width: 50px;
+        height: 30px;
+        border: 1px solid black;
+        margin: 0 5px;
+        text-align: center;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .button {
+        background-color: #0000ff78;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        cursor: pointer;
+        margin-top: 20px;
+    }
+
+    .result {
+        margin-top: 20px;
+        display: none;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Kalkulator Sistem Persamaan Linier</h1>
+  <label for="ukuran-matriks">Ukuran Matriks:</label>
+  <select id="ukuran-matriks" name="ukuran-matriks" onchange="generateMatrixInputs()">
+    <option value="2">2x2</option>
+    <option value="3">3x3</option>
+  </select>
+
+  <div id="matrix-inputs">
+  </div>
+
+  <div class="button-container">
+    <button class="button" onclick="calculate()">Hitung</button>
+    <button class="button" onclick="clearInputs()">Hapus</button>
+  </div>
+  <button class="button" onclick="goToHomePage()">Kembali</button>
+  <div class="result" id="result-container">
+    <p id="xResultContainer">x1 = <span id="xResult"></span></p>
+    <p id="yResultContainer">x2 = <span id="yResult"></span></p>
+    <p id="zResultContainer">x3 = <span id="zResult"></span></p>
+  </div>
+</div>
+
+<script>
+  function generateMatrixInputs() {
+    var ukuran = document.getElementById("ukuran-matriks").value;
+    var matrixInputs = document.getElementById("matrix-inputs");
+    matrixInputs.innerHTML = "";
+  
+    for (var i = 1; i <= ukuran; i++) {
+      var equation = document.createElement("div");
+      equation.className = "equation";
+  
+      for (var j = 1; j <= ukuran; j++) {
+        var input = document.createElement("input");
+        input.type = "number";
+        input.className = "input-box";
+        input.id = "a" + i + j;
+        equation.appendChild(input);
+        
+        if (j < ukuran) {
+          equation.appendChild(document.createTextNode(" x" + j + " + "));
+        } else {
+          equation.appendChild(document.createTextNode(" x" + j + " = "));
+        }
+      }
+  
+      var resultInput = document.createElement("input");
+      resultInput.type = "number";
+      resultInput.className = "input-box";
+      resultInput.id = "result" + i;
+      equation.appendChild(resultInput);
+  
+      matrixInputs.appendChild(equation);
+    }
+  }
+  
+  function calculate() {
+    var ukuran = document.getElementById("ukuran-matriks").value;
+    var matriks = [];
+  
+    for (var i = 1; i <= ukuran; i++) {
+      var row = [];
+      for (var j = 1; j <= ukuran; j++) {
+        row.push(parseFloat(document.getElementById("a" + i + j).value));
+      }
+      row.push(parseFloat(document.getElementById("result" + i).value));
+      matriks.push(row);
+    }
+  
+    var solusi = eliminasiGauss(matriks);
+  
+    var resultContainer = document.getElementById("result-container");
+    resultContainer.style.display = "block";
+  
+    document.getElementById("xResultContainer").style.display = ukuran >= 1 ? "block" : "none";
+    document.getElementById("yResultContainer").style.display = ukuran >= 2 ? "block" : "none";
+    document.getElementById("zResultContainer").style.display = ukuran == 3 ? "block" : "none";
+  
+    if (solusi) {
+      document.getElementById("xResult").innerHTML = solusi[0] !== undefined ? solusi[0] : 0;
+      document.getElementById("yResult").innerHTML = solusi[1] !== undefined ? solusi[1] : 0;
+      if (ukuran == 3) {
+        document.getElementById("zResult").innerHTML = solusi[2] !== undefined ? solusi[2] : 0;
+      }
+    } else {
+      document.getElementById("xResult").innerHTML = "Tidak ada solusi";
+      document.getElementById("yResult").innerHTML = "Tidak ada solusi";
+      if (ukuran == 3) {
+        document.getElementById("zResult").innerHTML = "Tidak ada solusi";
+      }
+    }
+}
+
+  function eliminasiGauss(matriks) {
+  var baris = matriks.length;
+  var kolom = matriks[0].length;
+
+  for (var i = 0; i < baris; i++) {
+    var maxEl = Math.abs(matriks[i][i]);
+    var maxRow = i;
+    for (var k = i + 1; k < baris; k++) {
+      if (Math.abs(matriks[k][i]) > maxEl) {
+        maxEl = Math.abs(matriks[k][i]);
+        maxRow = k;
+      }
+    }
+
+    for (var k = i; k < kolom; k++) {
+      var tmp = matriks[maxRow][k];
+      matriks[maxRow][k] = matriks[i][k];
+      matriks[i][k] = tmp;
+    }
+
+    for (var k = i + 1; k < baris; k++) {
+      var c = -matriks[k][i] / matriks[i][i];
+      for (var j = i; j < kolom; j++) {
+        if (i == j) {
+          matriks[k][j] = 0;
+        } else {
+          matriks[k][j] += c * matriks[i][j];
+        }
+      }
+    }
+  }
+
+  var solusi = new Array(baris).fill(0);
+  for (var i = baris - 1; i >= 0; i--) {
+    solusi[i] = matriks[i][kolom - 1] / matriks[i][i];
+    for (var k = i - 1; k >= 0; k--) {
+      matriks[k][kolom - 1] -= matriks[k][i] * solusi[i];
+    }
+  }
+
+  for (var i = 0; i < solusi.length; i++) {
+    if (Number.isInteger(solusi[i])) {
+      solusi[i] = solusi[i];
+    } else {
+      solusi[i] = toFraction(solusi[i]);
+    }
+  }
+
+  return solusi;
+}
+
+function toFraction(decimal) {
+  const tolerance = 1.0E-6;
+  let h1 = 1;
+  let h2 = 0;
+  let k1 = 0;
+  let k2 = 1;
+  let b = decimal;
+  do {
+    let a = Math.floor(b);
+    let aux = h1;
+    h1 = a * h1 + h2;
+    h2 = aux;
+    aux = k1;
+    k1 = a * k1 + k2;
+    k2 = aux;
+    b = 1 / (b - a);
+  } while (Math.abs(decimal - h1 / k1) > decimal * tolerance);
+
+  return `${h1}/${k1}`;
+}
+
+  function clearInputs() {
+    var matrixInputs = document.getElementById("matrix-inputs");
+    var inputs = matrixInputs.getElementsByTagName("input");
+    for (var i = 0; i < inputs.length; i++) {
+      inputs[i].value = "";
+    }
+    var resultContainer = document.getElementById("result-container");
+    resultContainer.style.display = "none";
+  }
+
+  generateMatrixInputs();
+
+  function goToHomePage() {
+    window.location.href = "homepage.html";
+  }
+</script>
+</body>
+</html>

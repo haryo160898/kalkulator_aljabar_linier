@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <style>
+  body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #ffffff00;
+    }
+    .container {
+      width: 90%;
+      max-width: 600px;
+      margin: 20px auto;
+      background: linear-gradient(to bottom, #7271a0, #8f9ddf, #c8fdff);
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      text-align: center;
+      color: white;
+      position: relative;
+      height: 250px;
+    }
+    h1 {
+      margin-bottom: 20px;
+      color: white; 
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+    }
+    li {
+      width: 100%; 
+    }
+    .button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 15px 20px;
+      text-decoration: none;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+      width: 50%; 
+      margin: 0 auto;
+      display: block;
+    }
+    .button:hover {
+      background-color: #0056b3;
+    }
+    .input-container {
+      margin-bottom: 20px;
+    }
+    #nama {
+      height: 40px; 
+      font-size: 16px; 
+      padding: 10px; 
+      box-sizing: border-box; 
+      width: 50%; 
+    }
+    .watermark {
+      position: absolute;
+      bottom: 10px;
+      left: 0;
+      right: 0;
+      font-size: 12px;
+      color: rgb(19, 0, 93);
+    }
+    @media only screen and (min-width: 360px) {
+      .watermark {
+        position: absolute;
+        bottom: 10px;
+        left: 0;
+        right: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Silahkan Masukan Nama Anda</h1>
+    <div class="input-container">
+      <label for="nama"></label>
+      <input type="text" id="nama" onkeypress="handleKeyPress(event)">
+    </div>
+    <button class="button" onclick="login()">Enter</button>
+    <div class="watermark"><img src="https://fbis.undira.ac.id/wp-content/uploads/2023/10/cropped-logo-undira-PNG-01-min-1-768x197.png" alt="Watermark" style="width: 100px; height: auto;"><br>
+      © 2024 Haryo Kusumo W (411231174)</div>
+  </div>
+
+  <script>
+    function handleKeyPress(event) {
+      if (event.keyCode === 13) { 
+        event.preventDefault(); 
+        login();
+      }
+    }
+
+    function login() {
+      const nama = document.getElementById('nama').value;
+      if (nama.trim() !== '') { 
+        sessionStorage.setItem('nama', nama);
+        window.location.href = "homepage.html"; 
+      } else {
+        alert('Silakan masukkan nama Anda.');
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Kalkulator Matriks</title>
+  <style>
+    body {
+        background-color: #ffffff00;
+        font-family: sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+
+    .container {
+        width: 90%;
+        max-width: 600px;
+        margin: 20px auto;
+        background: linear-gradient(to bottom, #252338, #4252b9, #6fb4cd);
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        text-align: center;
+        color: white;
+    }
+
+    h1 {
+        margin-bottom: 20px;
+    }
+
+    label {
+        margin-top: 20px;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    select {
+        margin-bottom: 20px;
+    }
+
+    .matrix-container {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 20px;
+    }
+
+    .matrix {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .row {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+
+    .input-box {
+        width: 50px;
+        height: 30px;
+        border: 1px solid black;
+        margin: 0 5px;
+        text-align: center;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .button {
+        background-color: #0000ff78;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        cursor: pointer;
+        margin-top: 20px;
+    }
+
+    .result {
+        margin-top: 20px;
+        display: none;
+    }
+
+    .result p {
+        margin: 5px 0;
+    }
+
+    .process {
+        margin-top: 20px;
+        text-align: left;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    table, th, td {
+        border: 1px solid black;
+    }
+
+    th, td {
+        padding: 10px;
+        text-align: center;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Kalkulator Matriks</h1>
+  <label for="ukuran-matriks">Ukuran Matriks:</label>
+  <select id="ukuran-matriks" name="ukuran-matriks" onchange="generateMatrixInputs()">
+    <option value="2">2x2</option>
+    <option value="3">3x3</option>
+  </select>
+
+  <label for="operation">Operasi:</label>
+  <select id="operation" name="operation">
+    <option value="addition">Penjumlahan</option>
+    <option value="subtraction">Pengurangan</option>
+    <option value="multiplication">Perkalian</option>
+  </select>
+
+  <div class="matrix-container" id="matrix-inputs">
+  </div>
+
+  <div class="button-container">
+    <button class="button" onclick="calculate('addition')">Hitung</button>
+    <button class="button" onclick="clearInputs()">Hapus</button>
+  </div>
+  <button class="button" onclick="goToHomePage()">Kembali</button>
+  <div class="result" id="result-container">
+    <h2>Hasil</h2>
+    <div id="result-matrix"></div>
+    <div class="process" id="calculation-process"></div>
+  </div>
+</div>
+
+<script>
+  function generateMatrixInputs() {
+    var ukuran = document.getElementById("ukuran-matriks").value;
+    var matrixInputs = document.getElementById("matrix-inputs");
+    matrixInputs.innerHTML = "";
+
+    var matrixA = document.createElement("div");
+    matrixA.className = "matrix";
+    var matrixB = document.createElement("div");
+    matrixB.className = "matrix";
+
+    var labelA = document.createElement("h3");
+    labelA.textContent = "Matriks A";
+    var labelB = document.createElement("h3");
+    labelB.textContent = "Matriks B";
+
+    matrixA.appendChild(labelA);
+    matrixB.appendChild(labelB);
+
+    for (var i = 1; i <= ukuran; i++) {
+      var rowA = document.createElement("div");
+      rowA.className = "row";
+      var rowB = document.createElement("div");
+      rowB.className = "row";
+
+      for (var j = 1; j <= ukuran; j++) {
+        var inputA = document.createElement("input");
+        inputA.type = "number";
+        inputA.className = "input-box";
+        inputA.id = "m1a" + i + j;
+        rowA.appendChild(inputA);
+
+        var inputB = document.createElement("input");
+        inputB.type = "number";
+        inputB.className = "input-box";
+        inputB.id = "m2a" + i + j;
+        rowB.appendChild(inputB);
+      }
+
+      matrixA.appendChild(rowA);
+      matrixB.appendChild(rowB);
+    }
+
+    matrixInputs.appendChild(matrixA);
+    matrixInputs.appendChild(matrixB);
+  }
+
+  function calculate() {
+    const operation = document.getElementById("operation").value;
+    const ukuran = parseInt(document.getElementById("ukuran-matriks").value);
+    const matrix1 = [];
+    const matrix2 = [];
+    const resultMatrixArray = [];
+
+    for (let i = 1; i <= ukuran; i++) {
+        const row1 = [];
+        const row2 = [];
+        for (let j = 1; j <= ukuran; j++) {
+            row1.push(parseInt(document.getElementById(`m1a${i}${j}`).value) || 0);
+            row2.push(parseInt(document.getElementById(`m2a${i}${j}`).value) || 0); 
+        }
+        matrix1.push(row1);
+        matrix2.push(row2);
+    }
+
+    for (let i = 0; i < ukuran; i++) {
+        resultMatrixArray[i] = [];
+        for (let j = 0; j < ukuran; j++) {
+            let process = '';
+            if (operation === 'addition') {
+                resultMatrixArray[i][j] = matrix1[i][j] + matrix2[i][j];
+                process = `${matrix1[i][j]} + ${matrix2[i][j]}`;
+            } else if (operation === 'subtraction') {
+                resultMatrixArray[i][j] = matrix1[i][j] - matrix2[i][j];
+                process = `${matrix1[i][j]} - ${matrix2[i][j]}`;
+            } else if (operation === 'multiplication') {
+                let sum = 0;
+                for (let k = 0; k < ukuran; k++) {
+                    sum += matrix1[i][k] * matrix2[k][j];
+                    if (k < ukuran - 1) {
+                        process += `${matrix1[i][k]} * ${matrix2[k][j]} + `;
+                    } else {
+                        process += `${matrix1[i][k]} * ${matrix2[k][j]}`;
+                    }
+                }
+                resultMatrixArray[i][j] = sum;
+            }
+        }
+    }
+
+    displayResult(resultMatrixArray);
+
+    displayProcess(operation, ukuran, matrix1, matrix2);
+}
+
+function displayResult(result) {
+    const resultContainer = document.getElementById("result-container");
+    const resultMatrix = document.getElementById("result-matrix");
+    resultMatrix.innerHTML = "";
+
+    const table = document.createElement("table");
+
+    for (let i = 0; i < result.length; i++) {
+        const row = document.createElement("tr");
+        for (let j = 0; j < result[0].length; j++) {
+            const cell = document.createElement("td");
+            cell.textContent = result[i][j];
+            row.appendChild(cell);
+        }
+        table.appendChild(row);
+    }
+    resultMatrix.appendChild(table);
+
+    resultContainer.style.display = "block";
+}
+
+function displayProcess(operation, ukuran, matrix1, matrix2) {
+  const calculationProcess = document.getElementById("calculation-process");
+  calculationProcess.innerHTML = "";
+
+  let processText = "";
+  for (let i = 0; i < ukuran; i++) {
+    for (let j = 0; j < ukuran; j++) {
+      if (operation === "addition" || operation === "subtraction") {
+        processText += `${matrix1[i][j]} ${
+          operation === "addition" ? "+" : "-"
+        } ${matrix2[i][j]} = ${
+          matrix1[i][j] + (operation === "addition" ? matrix2[i][j] : -matrix2[i][j])
+        }<br>`;
+      } else if (operation === "multiplication") {
+        for (let k = 0; k < ukuran; k++) {
+          processText += `${matrix1[i][k]} * ${matrix2[k][j]}${
+            k !== ukuran - 1 ? " + " : ""
+          }`;
+        }
+        processText += ` = ${matrix1[i].reduce(
+          (acc, val, ind) => acc + val * matrix2[ind][j],
+          0
+        )}<br>`;
+      }
+    }
+  }
+
+  calculationProcess.innerHTML = processText;
+}
+
+function clearInputs() {
+    const inputs = document.querySelectorAll('.input-box');
+    inputs.forEach(input => {
+        input.value = '';
+    });
+
+    const resultContainer = document.getElementById("result-container");
+    resultContainer.style.display = "none";
+}
+
+generateMatrixInputs();
+
+  function goToHomePage() {
+    window.location.href = "homepage.html";
+  }
+</script>
+</body>
+</html>
+

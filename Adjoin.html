@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalkulator Adjoin Matriks</title>
+  <style>
+    body {
+      background-color: #ffffff00;
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 600px;
+      margin: 20px auto;
+      background: linear-gradient(to bottom, #252338, #4252b9, #6fb4cd);
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      text-align: center;
+      color: white;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    label {
+      margin-top: 20px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    select {
+      margin-bottom: 20px;
+    }
+
+    .input-matriks {
+      display: grid;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .size-2 {
+      grid-template-columns: repeat(2, 50px);
+    }
+
+    .size-3 {
+      grid-template-columns: repeat(3, 50px);
+    }
+
+    .matrix-input {
+      width: 50px;
+      height: 30px;
+      text-align: center;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .button {
+      background-color: #0000ff78;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .result {
+      margin-top: 20px;
+    }
+
+    table {
+      margin: 20px auto;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border: 1px solid white;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Kalkulator Adjoin Matriks</h1>
+    <label for="ukuran-matriks">Ukuran Matriks:</label>
+    <select id="ukuran-matriks" name="ukuran-matriks">
+      <option value="2">2x2</option>
+      <option value="3">3x3</option>
+    </select>
+    <div class="input-matriks" id="input-matriks"></div>
+    <div class="button-container">
+      <button class="button" id="calculate-btn">Hitung</button> 
+      <button class="button" id="clear-btn">Hapus</button>
+    </div>
+    <button class="button" onclick="goToHomePage()">Kembali</button>
+    <div class="result" id="hasil-adjoin"></div>
+  </div>
+  <script>
+document.addEventListener('DOMContentLoaded', function () {
+  const ukuranMatriks = document.getElementById('ukuran-matriks');
+  const inputMatriks = document.getElementById('input-matriks');
+  const calculateBtn = document.getElementById('calculate-btn');
+  const hasilAdjoin = document.getElementById('hasil-adjoin');
+  const clearBtn = document.getElementById('clear-btn');
+
+  function generateInputBoxes(size) {
+    inputMatriks.innerHTML = '';
+    inputMatriks.classList.remove('size-2', 'size-3');
+    inputMatriks.classList.add(`size-${size}`);
+
+    for (let i = 0; i < size; i++) {
+      const row = document.createElement('div');
+      row.classList.add('row');
+      for (let j = 0; j < size; j++) {
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.className = 'matrix-input';
+        input.id = `a${i}${j}`;
+        row.appendChild(input);
+      }
+      inputMatriks.appendChild(row);
+    }
+  }
+
+  function getMatrixValues(size) {
+    const values = [];
+    const inputs = inputMatriks.querySelectorAll('input');
+    for (let i = 0; i < size * size; i++) {
+      const value = parseFloat(inputs[i].value);
+      if (!isNaN(value)) {
+        values.push(value);
+      } else {
+        return null;
+      }
+    }
+    return values;
+  }
+
+  function calculateAdjoin(size) {
+    const matrixValues = getMatrixValues(size);
+    if (matrixValues === null) {
+      hasilAdjoin.textContent = 'Masukkan nilai yang valid untuk semua elemen matriks.';
+      return;
+    }
+
+    let adjoinMatrix = [];
+    if (size === 2) {
+      adjoinMatrix = [
+        matrixValues[3], -matrixValues[1],
+        -matrixValues[2], matrixValues[0]
+      ];
+    } else {
+      adjoinMatrix = new Array(size * size).fill(0);
+      for (let i = 0; i < size; i++) {
+        for (let j = 0; j < size; j++) {
+          let subMatrix = [];
+          for (let m = 0; m < size; m++) {
+            if (m !== i) {
+              for (let n = 0; n < size; n++) {
+                if (n !== j) {
+                  subMatrix.push(matrixValues[m * size + n]);
+                }
+              }
+            }
+          }
+          const determinant = (size === 2) ? determinant2x2(subMatrix) : determinantNxN(subMatrix, size - 1);
+          const sign = (i + j) % 2 === 0 ? 1 : -1;
+          adjoinMatrix[j * size + i] = sign * determinant;
+        }
+      }
+    }
+    displayAdjoinMatrix(adjoinMatrix, size);
+  }
+
+  function displayAdjoinMatrix(matrix, size) {
+    hasilAdjoin.textContent = 'Adjoin matriks';
+    const table = document.createElement('table');
+    const tbody = document.createElement('tbody');
+    for (let i = 0; i < size; i++) {
+      const row = document.createElement('tr');
+      for (let j = 0; j < size; j++) {
+        const cell = document.createElement('td');
+        cell.textContent = matrix[j * size + i];
+        row.appendChild(cell);
+      }
+      tbody.appendChild(row);
+    }
+    table.appendChild(tbody);
+    hasilAdjoin.appendChild(table);
+  }
+
+  function determinant2x2(matrix) {
+    return matrix[0] * matrix[3] - matrix[1] * matrix[2];
+  }
+
+  function determinantNxN(matrix, size) {
+    if (size === 2) {
+      return determinant2x2(matrix);
+    }
+    let determinant = 0;
+    for (let i = 0; i < size; i++) {
+      let subMatrix = [];
+      for (let m = 1; m < size; m++) {
+        for (let n = 0; n < size; n++) {
+          if (n !== i) {
+            subMatrix.push(matrix[m * size + n]);
+          }
+        }
+      }
+      determinant += ((i % 2 === 0 ? 1 : -1) * matrix[i] * determinantNxN(subMatrix, size - 1));
+    }
+    return determinant;
+  }
+
+  clearBtn.addEventListener('click', function () {
+    hasilAdjoin.textContent = '';
+    const inputs = inputMatriks.querySelectorAll('input');
+    inputs.forEach(input => {
+      input.value = '';
+    });
+  });
+
+  ukuranMatriks.addEventListener('change', function () {
+    const size = parseInt(this.value);
+    generateInputBoxes(size);
+    hasilAdjoin.textContent = '';
+  });
+
+  calculateBtn.addEventListener('click', function () {
+    const size = parseInt(ukuranMatriks.value);
+    calculateAdjoin(size);
+  });
+
+  generateInputBoxes(parseInt(ukuranMatriks.value));
+});
+
+function goToHomePage() {
+  window.location.href = "homepage.html";
+}
+
+  </script>
+</body>
+</html>
+

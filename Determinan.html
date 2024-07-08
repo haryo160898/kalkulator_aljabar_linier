@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalkulator Determinan Matriks</title>
+  <style>
+    body {
+      background-color: #ffffff00;
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 600px;
+      margin: 20px auto;
+      background: linear-gradient(to bottom, #252338, #4252b9, #6fb4cd);
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      text-align: center;
+      color: white;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    label {
+      margin-top: 20px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    select {
+      margin-bottom: 20px;
+    }
+
+    .input-matriks {
+      display: grid;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .size-2 {
+      grid-template-columns: repeat(2, 50px);
+    }
+
+    .size-3 {
+      grid-template-columns: repeat(3, 50px);
+    }
+
+    .matrix-input {
+      width: 50px;
+      height: 30px;
+      text-align: center;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .button {
+      background-color: #0000ff78;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .result {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Kalkulator Determinan Matriks</h1>
+    <label for="ukuran-matriks">Ukuran Matriks:</label>
+    <select id="ukuran-matriks" name="ukuran-matriks">
+      <option value="2">2x2</option>
+      <option value="3">3x3</option>
+    </select>
+    <div class="input-matriks" id="input-matriks"></div>
+    <div class="button-container">
+      <button class="button" id="calculate-btn">Hitung</button> 
+      <button class="button" id="clear-btn">Hapus</button>
+    </div>
+    <button class="button" onclick="goToHomePage()">Kembali</button>
+    <div class="result" id="hasil-determinan"></div>
+    <div class="result" id="proses-perhitungan"></div>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const ukuranMatriks = document.getElementById('ukuran-matriks');
+      const inputMatriks = document.getElementById('input-matriks');
+      const calculateBtn = document.getElementById('calculate-btn');
+      const hasilDeterminan = document.getElementById('hasil-determinan');
+      const prosesPerhitungan = document.getElementById('proses-perhitungan');
+      const clearBtn = document.getElementById('clear-btn');
+
+      function generateInputBoxes(size) {
+        inputMatriks.innerHTML = '';
+        inputMatriks.classList.remove('size-2', 'size-3');
+        inputMatriks.classList.add(`size-${size}`);
+
+        for (let i = 0; i < size; i++) {
+          for (let j = 0; j < size; j++) {
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.className = 'matrix-input';
+            input.id = `a${i}${j}`;
+            inputMatriks.appendChild(input);
+          }
+        }
+      }
+
+      function getMatrixValues(size) {
+        const values = [];
+        const inputs = inputMatriks.querySelectorAll('input');
+        for (let i = 0; i < size * size; i++) {
+          const value = parseFloat(inputs[i].value);
+          if (!isNaN(value)) {
+            values.push(value);
+          } else {
+            return null;
+          }
+        }
+        return values;
+      }
+
+      function determinant2x2(matrix) {
+        return matrix[0] * matrix[3] - matrix[1] * matrix[2];
+      }
+
+      function determinant3x3(matrix) {
+        return (
+          matrix[0] * matrix[4] * matrix[8] +
+          matrix[1] * matrix[5] * matrix[6] +
+          matrix[2] * matrix[3] * matrix[7] -
+          matrix[2] * matrix[4] * matrix[6] -
+          matrix[1] * matrix[3] * matrix[8] -
+          matrix[0] * matrix[5] * matrix[7]
+        );
+      }
+
+      function calculateDeterminant(size) {
+        const matrixValues = getMatrixValues(size);
+        if (matrixValues === null) {
+          hasilDeterminan.textContent = 'Masukkan nilai yang valid untuk semua elemen matriks.';
+          return;
+        }
+        let determinant;
+        let process = "Proses perhitungan: \n";
+        switch (size) {
+          case 2:
+            determinant = determinant2x2(matrixValues);
+            process += "\n";
+            process += `(${matrixValues[0]} * ${matrixValues[3]}) - (${matrixValues[1]} * ${matrixValues[2]})\n`;
+            break;
+          case 3:
+            determinant = determinant3x3(matrixValues);
+            process += "\n";
+            process += `(${matrixValues[0]} * ${matrixValues[4]} * ${matrixValues[8]}) +\n`;
+            process += `(${matrixValues[1]} * ${matrixValues[5]} * ${matrixValues[6]}) +\n`;
+            process += `(${matrixValues[2]} * ${matrixValues[3]} * ${matrixValues[7]}) -\n`;
+            process += `(${matrixValues[2]} * ${matrixValues[4]} * ${matrixValues[6]}) -\n`;
+            process += `(${matrixValues[1]} * ${matrixValues[3]} * ${matrixValues[8]}) -\n`;
+            process += `(${matrixValues[0]} * ${matrixValues[5]} * ${matrixValues[7]})\n`;
+            break;
+          default:
+            hasilDeterminan.textContent = 'Ukuran matriks tidak valid.';
+            return;
+        }
+        hasilDeterminan.textContent = `Determinan matriks adalah: ${determinant}`;
+        prosesPerhitungan.textContent = process;
+      }
+
+      clearBtn.addEventListener('click', function () {
+        hasilDeterminan.textContent = '';
+        prosesPerhitungan.textContent = '';
+        const inputs = inputMatriks.querySelectorAll('input');
+        inputs.forEach(input => {
+          input.value = '';
+        });
+      });
+
+      ukuranMatriks.addEventListener('change', function () {
+        const size = parseInt(this.value);
+        generateInputBoxes(size);
+        hasilDeterminan.textContent = '';
+        prosesPerhitungan.textContent = '';
+      });
+
+      calculateBtn.addEventListener('click', function () {
+        const size = parseInt(ukuranMatriks.value);
+        calculateDeterminant(size);
+      });
+
+      generateInputBoxes(parseInt(ukuranMatriks.value));
+    });
+
+    function goToHomePage() {
+    window.location.href = "homepage.html";
+  }
+  </script>
+</body>
+</html>

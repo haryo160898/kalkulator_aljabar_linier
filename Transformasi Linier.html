@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalkulator Transformasi Linier</title>
+  <style>
+    body {
+      background-color: #ffffff00;
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 600px;
+      margin: 20px auto;
+      background: linear-gradient(to bottom, #252338, #4252b9, #6fb4cd);
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      text-align: center;
+      color: white;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    label {
+      margin-top: 20px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    select {
+      margin-bottom: 20px;
+    }
+
+    .input-matriks, .input-vektor {
+      display: grid;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .size-2 {
+      grid-template-columns: repeat(2, 50px);
+    }
+
+    .size-3 {
+      grid-template-columns: repeat(3, 50px);
+    }
+
+    .matrix-input, .vector-input {
+      width: 50px;
+      height: 30px;
+      text-align: center;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .button {
+      background-color: #0000ff78;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .result {
+      margin-top: 20px;
+    }
+
+    table {
+      margin: 20px auto;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border: 1px solid white;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Kalkulator Transformasi Linier</h1>
+    <label for="ukuran-transformasi">Ukuran Matriks:</label>
+    <select id="ukuran-transformasi" name="ukuran-transformasi">
+      <option value="2">2x2</option>
+      <option value="3">3x3</option>
+    </select>
+    <div class="input-matriks" id="input-matriks"></div>
+    <label for="vektor">Vektor:</label>
+    <div class="input-vektor" id="input-vektor"></div>
+    <div class="button-container">
+      <button class="button" id="calculate-btn">Hitung Transformasi</button> 
+      <button class="button" id="clear-btn">Hapus</button>
+    </div>
+    <button class="button" onclick="goToHomePage()">Kembali</button>
+    <div class="result" id="hasil-transformasi"></div>
+    <div class="result" id="proses-perhitungan"></div>
+  </div>
+  <script>
+document.addEventListener('DOMContentLoaded', function () {
+  const ukuranTransformasi = document.getElementById('ukuran-transformasi');
+  const inputMatriks = document.getElementById('input-matriks');
+  const inputVektor = document.getElementById('input-vektor');
+  const calculateBtn = document.getElementById('calculate-btn');
+  const hasilTransformasi = document.getElementById('hasil-transformasi');
+  const prosesPerhitungan = document.getElementById('proses-perhitungan');
+  const clearBtn = document.getElementById('clear-btn');
+
+  function generateInputBoxes(size) {
+    inputMatriks.innerHTML = '';
+    inputVektor.innerHTML = '';
+    inputMatriks.classList.remove('size-2', 'size-3');
+    inputMatriks.classList.add(`size-${size}`);
+    inputVektor.classList.remove('size-2', 'size-3');
+    inputVektor.classList.add(`size-${size}`);
+
+    for (let i = 0; i < size; i++) {
+      for (let j = 0; j < size; j++) {
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.className = 'matrix-input';
+        input.id = `m${i}${j}`;
+        inputMatriks.appendChild(input);
+      }
+    }
+
+    for (let i = 0; i < size; i++) {
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.className = 'vector-input';
+      input.id = `v${i}`;
+      inputVektor.appendChild(input);
+    }
+  }
+
+  function getMatrixValues(size) {
+    const values = [];
+    const inputs = inputMatriks.querySelectorAll('input');
+    for (let i = 0; i < size * size; i++) {
+      const value = parseFloat(inputs[i].value);
+      if (!isNaN(value)) {
+        values.push(value);
+      } else {
+        return null;
+      }
+    }
+    return values;
+  }
+
+  function getVectorValues(size) {
+    const values = [];
+    const inputs = inputVektor.querySelectorAll('input');
+    for (let i = 0; i < size; i++) {
+      const value = parseFloat(inputs[i].value);
+      if (!isNaN(value)) {
+        values.push(value);
+      } else {
+        return null;
+      }
+    }
+    return values;
+  }
+
+  function calculateTransformation(size) {
+    const matrixValues = getMatrixValues(size);
+    const vectorValues = getVectorValues(size);
+    if (matrixValues === null || vectorValues === null) {
+      hasilTransformasi.textContent = 'Masukkan nilai yang valid untuk semua elemen matriks dan vektor.';
+      return;
+    }
+
+    const result = new Array(size).fill(0);
+    let proses = 'Proses Perhitungan<br>';
+
+    for (let i = 0; i < size; i++) {
+      proses += `Baris ${i + 1}: `;
+      for (let j = 0; j < size; j++) {
+        result[i] += matrixValues[i * size + j] * vectorValues[j];
+        proses += `(${matrixValues[i * size + j]} * ${vectorValues[j]})`;
+        if (j < size - 1) {
+          proses += ' + ';
+        }
+      }
+      proses += ` = ${result[i]}<br>`; 
+    }
+
+    displayTransformationResult(result, size);
+    prosesPerhitungan.innerHTML = proses;
+}
+
+  function displayTransformationResult(result, size) {
+    hasilTransformasi.textContent = 'Hasil Transformasi';
+    const table = document.createElement('table');
+    const tbody = document.createElement('tbody');
+    const row = document.createElement('tr');
+    for (let i = 0; i < size; i++) {
+      const cell = document.createElement('td');
+      cell.textContent = result[i];
+      row.appendChild(cell);
+    }
+    tbody.appendChild(row);
+    table.appendChild(tbody);
+    hasilTransformasi.appendChild(table);
+  }
+
+  clearBtn.addEventListener('click', function () {
+    hasilTransformasi.textContent = '';
+    prosesPerhitungan.textContent = '';
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => {
+      input.value = '';
+    });
+  });
+
+  ukuranTransformasi.addEventListener('change', function () {
+    const size = parseInt(this.value);
+    generateInputBoxes(size);
+    hasilTransformasi.textContent = '';
+    prosesPerhitungan.textContent = '';
+  });
+
+  calculateBtn.addEventListener('click', function () {
+    const size = parseInt(ukuranTransformasi.value);
+    calculateTransformation(size);
+  });
+
+  generateInputBoxes(parseInt(ukuranTransformasi.value));
+});
+
+function goToHomePage() {
+  window.location.href = "homepage.html";
+}
+  </script>
+</body>
+</html>

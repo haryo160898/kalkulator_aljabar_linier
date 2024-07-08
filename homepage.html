@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homepage</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff00;
+        }
+        .container {
+            width: 90%;
+            max-width: 600px;
+            margin: 20px auto;
+            background: linear-gradient(to bottom, #7271a0, #8f9ddf, #c8fdff);
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+            color: white;
+            position: relative;
+            height: 580px;
+        }
+        h1 {
+            margin-bottom: 20px;
+            color: white; 
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+        li {
+            width: 100%; 
+        }
+        .button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            text-decoration: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            width: 100%; 
+            display: block;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .watermark {
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            right: 0;
+            font-size: 12px;
+            color: rgb(19, 0, 93);
+        }
+        @media only screen and (min-width: 360px) {
+            .watermark {
+                position: absolute;
+                bottom: 10px;
+                left: 0;
+                right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Selamat Datang <span id="namaPlaceholder"></span>!</h1>
+        <h2>Apakah ada yang ingin kamu hitung?</h2>
+        <ul>
+            <li><button class="button" onclick="location.href='Matriks.html';">Kalkulator Matriks</button></li>
+            <li><button class="button" onclick="location.href='Power.html';">Kalkulator Pangkat Matriks</button></li>
+            <li><button class="button" onclick="location.href='Determinan.html';">Kalkulator Determinan Matriks</button></li>
+            <li><button class="button" onclick="location.href='Adjoin.html';">Kalkulator Adjoin Matriks</button></li>
+            <li><button class="button" onclick="location.href='Inverse.html';">Kalkulator Inverse Matriks</button></li>
+            <li><button class="button" onclick="location.href='Vektor.html';">Kalkulator Vektor</button></li>
+            <li><button class="button" onclick="location.href='Transformasi Linier.html';">Kalkulator Transformasi Linier</button></li>
+            <li><button class="button" onclick="location.href='Sistem Persamaan Linier.html';">Kalkulator Sistem Persamaan Linier</button></li>
+        </ul>
+        <div class="watermark">
+            © 2024 Haryo Kusumo W (411231174)
+        </div>
+    </div>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+          // Ambil nama dari sesi atau cookie
+          const nama = sessionStorage.getItem('nama');
+          if (nama) {
+            document.getElementById('namaPlaceholder').textContent = nama;
+          }
+        });
+      </script>
+    </body>
+    </html>

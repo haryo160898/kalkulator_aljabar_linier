@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalkulator Invers Matriks</title>
+  <style>
+    body {
+      background-color: #ffffff00;
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 600px;
+      margin: 20px auto;
+      background: linear-gradient(to bottom, #252338, #4252b9, #6fb4cd);
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      text-align: center;
+      color: white;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    label {
+      margin-top: 20px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    select {
+      margin-bottom: 20px;
+    }
+
+    .input-matriks {
+      display: grid;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .size-2 {
+      grid-template-columns: repeat(2, 50px);
+    }
+
+    .size-3 {
+      grid-template-columns: repeat(3, 50px);
+    }
+
+    .matrix-input {
+      width: 50px;
+      height: 30px;
+      text-align: center;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .button {
+      background-color: #0000ff78;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .result {
+      margin-top: 20px;
+    }
+
+    table {
+      margin: 20px auto;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border: 1px solid white;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Kalkulator Invers Matriks</h1>
+    <label for="ukuran-matriks">Ukuran Matriks:</label>
+    <select id="ukuran-matriks" name="ukuran-matriks">
+      <option value="2">2x2</option>
+      <option value="3">3x3</option>
+    </select>
+    <div class="input-matriks" id="input-matriks"></div>
+    <div class="button-container">
+      <button class="button" id="calculate-btn">Hitung</button> 
+      <button class="button" id="clear-btn">Hapus</button>
+    </div>
+    <button class="button" onclick="goToHomePage()">Kembali</button>
+    <div class="result" id="hasil-inverse"></div>
+  </div>
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+  const ukuranMatriks = document.getElementById('ukuran-matriks');
+  const inputMatriks = document.getElementById('input-matriks');
+  const calculateBtn = document.getElementById('calculate-btn');
+  const hasilInverse = document.getElementById('hasil-inverse');
+  const clearBtn = document.getElementById('clear-btn');
+
+  function generateInputBoxes(size) {
+    inputMatriks.innerHTML = '';
+    inputMatriks.classList.remove('size-2', 'size-3');
+    inputMatriks.classList.add(`size-${size}`);
+
+    for (let i = 0; i < size; i++) {
+      const row = document.createElement('div');
+      row.classList.add('row');
+      for (let j = 0; j < size; j++) {
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.className = 'matrix-input';
+        input.id = `a${i}${j}`;
+        row.appendChild(input);
+      }
+      inputMatriks.appendChild(row);
+    }
+  }
+
+  function getMatrixValues(size) {
+    const values = [];
+    const inputs = inputMatriks.querySelectorAll('input');
+    for (let i = 0; i < size * size; i++) {
+      const value = parseFloat(inputs[i].value);
+      if (!isNaN(value)) {
+        values.push(value);
+      } else {
+        return null;
+      }
+    }
+    return values;
+  }
+
+  function calculateInverse(size) {
+    const matrixValues = getMatrixValues(size);
+    if (matrixValues === null) {
+      hasilInverse.textContent = 'Masukkan nilai yang valid untuk semua elemen matriks.';
+      return;
+    }
+    let inverseMatrix;
+    switch (size) {
+      case 2:
+        inverseMatrix = inverse2x2(matrixValues);
+        break;
+      case 3:
+        inverseMatrix = inverse3x3(matrixValues);
+        break;
+      default:
+        hasilInverse.textContent = 'Ukuran matriks tidak valid.';
+        return;
+    }
+    if (inverseMatrix === null) {
+      hasilInverse.textContent = 'Matriks tidak memiliki invers karena determinannya nol.';
+    } else {
+      displayInverseMatrix(inverseMatrix, size);
+    }
+  }
+
+  function displayInverseMatrix(matrix, size) {
+    hasilInverse.textContent = 'Inverse matriks';
+    const table = document.createElement('table');
+    const tbody = document.createElement('tbody');
+    for (let i = 0; i < size; i++) {
+      const row = document.createElement('tr');
+      for (let j = 0; j < size; j++) {
+        const cell = document.createElement('td');
+        const fraction = simplifyFraction(matrix[j * size + i]);
+        cell.textContent = fraction.numerator !== 0 ? (fraction.denominator !== 1 ? `${fraction.numerator}/${fraction.denominator}` : fraction.numerator) : 0;
+        row.appendChild(cell);
+      }
+      tbody.appendChild(row);
+    }
+    table.appendChild(tbody);
+    hasilInverse.appendChild(table);
+}
+
+  function simplifyFraction(decimal) {
+  const tolerance = 1.0E-6;
+  let isNegative = false;
+  if (decimal < 0) {
+    isNegative = true;
+    decimal = -decimal;
+  }
+
+  let h1 = 1;
+  let h2 = 0;
+  let k1 = 0;
+  let k2 = 1;
+  let b = decimal;
+  do {
+    let a = Math.floor(b);
+    let aux = h1;
+    h1 = a * h1 + h2;
+    h2 = aux;
+    aux = k1;
+    k1 = a * k1 + k2;
+    k2 = aux;
+    b = 1 / (b - a);
+  } while (Math.abs(decimal - h1 / k1) > decimal * tolerance);
+
+  if (isNegative) {
+    h1 = -h1;
+  }
+
+  return {
+    numerator: h1,
+    denominator: k1
+  };
+}
+
+  function inverse2x2(matrix) {
+    const det = determinant2x2(matrix);
+    if (det === 0) {
+      return null;
+    }
+    const invDet = 1 / det;
+    const inverseMatrix = [
+      matrix[3] * invDet, -matrix[1] * invDet,
+      -matrix[2] * invDet, matrix[0] * invDet
+    ];
+    return inverseMatrix;
+  }
+
+  function inverse3x3(matrix) {
+    const det = determinant3x3(matrix);
+    if (det === 0) {
+      return null;
+    }
+    const invDet = 1 / det;
+    const inverseMatrix = [
+      invDet * (matrix[4] * matrix[8] - matrix[5] * matrix[7]),
+      -invDet * (matrix[1] * matrix[8] - matrix[2] * matrix[7]),
+      invDet * (matrix[1] * matrix[5] - matrix[2] * matrix[4]),
+      -invDet * (matrix[3] * matrix[8] - matrix[5] * matrix[6]),
+      invDet * (matrix[0] * matrix[8] - matrix[2] * matrix[6]),
+      -invDet * (matrix[0] * matrix[5] - matrix[2] * matrix[3]),
+      invDet * (matrix[3] * matrix[7] - matrix[4] * matrix[6]),
+      -invDet * (matrix[0] * matrix[7] - matrix[1] * matrix[6]),
+      invDet * (matrix[0] * matrix[4] - matrix[1] * matrix[3])
+    ];
+    return inverseMatrix;
+  }
+
+  function determinant2x2(matrix) {
+    return matrix[0] * matrix[3] - matrix[1] * matrix[2];
+  }
+
+  function determinant3x3(matrix) {
+    return (
+      matrix[0] * (matrix[4] * matrix[8] - matrix[5] * matrix[7]) -
+      matrix[1] * (matrix[3] * matrix[8] - matrix[5] * matrix[6]) +
+      matrix[2] * (matrix[3] * matrix[7] - matrix[4] * matrix[6])
+    );
+  }
+
+  clearBtn.addEventListener('click', function () {
+    hasilInverse.textContent = '';
+    const inputs = inputMatriks.querySelectorAll('input');
+    inputs.forEach(input => {
+      input.value = '';
+    });
+  });
+
+  ukuranMatriks.addEventListener('change', function () {
+    const size = parseInt(this.value);
+    generateInputBoxes(size);
+    hasilInverse.textContent = '';
+  });
+
+  calculateBtn.addEventListener('click', function () {
+    const size = parseInt(ukuranMatriks.value);
+    calculateInverse(size);
+  });
+
+  generateInputBoxes(parseInt(ukuranMatriks.value));
+});
+
+function goToHomePage() {
+    window.location.href = "homepage.html";
+  }
+  </script>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalkulator Pangkat Matriks</title>
+  <style>
+    body {
+      background-color: #ffffff00;
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 600px;
+      margin: 20px auto;
+      background: linear-gradient(to bottom, #252338, #4252b9, #6fb4cd);
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      text-align: center;
+      color: white;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    label {
+      margin-top: 20px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    select, input {
+      margin-bottom: 20px;
+    }
+
+    .input-matriks {
+      display: grid;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .size-2 {
+      grid-template-columns: repeat(2, 50px);
+    }
+
+    .size-3 {
+      grid-template-columns: repeat(3, 50px);
+    }
+
+    .matrix-input {
+      width: 50px;
+      height: 30px;
+      text-align: center;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .button {
+      background-color: #0000ff78;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .result {
+      margin-top: 20px;
+    }
+
+    table {
+      margin: 20px auto;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border: 1px solid white;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Kalkulator Pangkat Matriks</h1>
+    <label for="ukuran-matriks">Ukuran Matriks:</label>
+    <select id="ukuran-matriks" name="ukuran-matriks">
+      <option value="2">2x2</option>
+      <option value="3">3x3</option>
+    </select>
+    <label for="power">Pangkat:</label>
+    <input type="number" id="power" name="power" min="1" value=" ">
+    <div class="input-matriks" id="input-matriks"></div>
+    <div class="button-container">
+      <button class="button" id="calculate-btn">Hitung</button> 
+      <button class="button" id="clear-btn">Hapus</button>
+    </div>
+    <button class="button" onclick="goToHomePage()">Kembali</button>
+    <div class="result" id="hasil-daya"></div>
+  </div>
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const ukuranMatriks = document.getElementById('ukuran-matriks');
+    const inputMatriks = document.getElementById('input-matriks');
+    const calculateBtn = document.getElementById('calculate-btn');
+    const hasilDaya = document.getElementById('hasil-daya');
+    const clearBtn = document.getElementById('clear-btn');
+    const powerInput = document.getElementById('power');
+
+    function generateInputBoxes(size) {
+      inputMatriks.innerHTML = '';
+      inputMatriks.classList.remove('size-2', 'size-3');
+      inputMatriks.classList.add(`size-${size}`);
+
+      for (let i = 0; i < size; i++) {
+        for (let j = 0; j < size; j++) {
+          const input = document.createElement('input');
+          input.type = 'number';
+          input.className = 'matrix-input';
+          input.id = `a${i}${j}`;
+          inputMatriks.appendChild(input);
+        }
+      }
+    }
+
+    function getMatrixValues(size) {
+      const values = [];
+      const inputs = inputMatriks.querySelectorAll('input');
+      for (let i = 0; i < size * size; i++) {
+        const value = parseFloat(inputs[i].value);
+        if (!isNaN(value)) {
+          values.push(value);
+        } else {
+          return null;
+        }
+      }
+      return values;
+    }
+
+    function matrixMultiply(A, B, size) {
+      const result = Array(size * size).fill(0);
+      for (let i = 0; i < size; i++) {
+        for (let j = 0; j < size; j++) {
+          for (let k = 0; k < size; k++) {
+            result[i * size + j] += A[i * size + k] * B[k * size + j];
+          }
+        }
+      }
+      return result;
+    }
+
+    function calculateMatrixPower(size, power) {
+      const matrixValues = getMatrixValues(size);
+      if (matrixValues === null) {
+        hasilDaya.textContent = 'Masukkan nilai yang valid untuk semua elemen matriks.';
+        return;
+      }
+      let resultMatrix = matrixValues.slice();
+      let currentMatrix = matrixValues.slice();
+
+      for (let p = 1; p < power; p++) {
+        resultMatrix = matrixMultiply(resultMatrix, currentMatrix, size);
+      }
+      displayFinalMatrix(resultMatrix, size);
+    }
+
+    function displayFinalMatrix(matrix, size) {
+      const finalContainer = document.createElement('div');
+      finalContainer.innerHTML = '<strong>Hasil akhir:</strong>';
+      const table = document.createElement('table');
+      const tbody = document.createElement('tbody');
+      for (let i = 0; i < size; i++) {
+        const row = document.createElement('tr');
+        for (let j = 0; j < size; j++) {
+          const cell = document.createElement('td');
+          cell.textContent = Math.round(matrix[i * size + j]);
+          row.appendChild(cell);
+        }
+        tbody.appendChild(row);
+      }
+      table.appendChild(tbody);
+      finalContainer.appendChild(table);
+      hasilDaya.appendChild(finalContainer);
+    }
+
+    clearBtn.addEventListener('click', function () {
+      hasilDaya.textContent = '';
+      powerInput.value = '';  // Clear the power input
+      const inputs = inputMatriks.querySelectorAll('input');
+      inputs.forEach(input => {
+        input.value = '';
+      });
+    });
+
+    ukuranMatriks.addEventListener('change', function () {
+      const size = parseInt(this.value);
+      generateInputBoxes(size);
+      hasilDaya.textContent = '';
+    });
+
+    calculateBtn.addEventListener('click', function () {
+      const size = parseInt(ukuranMatriks.value);
+      const power = parseInt(powerInput.value);
+      if (power < 1) {
+        hasilDaya.textContent = 'Masukkan nilai pangkat yang valid (>= 1).';
+        return;
+      }
+      calculateMatrixPower(size, power);
+    });
+
+    generateInputBoxes(parseInt(ukuranMatriks.value));
+  });
+
+  function goToHomePage() {
+    window.location.href = "homepage.html";
+  }
+  </script>
+</body>
+</html>
